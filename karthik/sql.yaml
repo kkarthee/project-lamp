@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    "heptio.com/example": lamp
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - image: mysql
+        name: mysql
+        resources:
+          requests:
+            cpu: 1
+            memory: 1Gi
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              # in this case, the Secret with the name: mysql-credentials
+              secretKeyRef:
+                name: mysql-credentials
+                key: rootpw
+          - name: MYSQL_USER
+            valueFrom:
+              secretKeyRef:
+                name: mysql-credentials
+                key: user
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-credentials
+                key: password
+          - name: MYSQL_DATABASE
+            value: sakila
+        livenessProbe:
+          tcpSocket:
+            port: 3306
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          subPath: data
+          name: database
+      volumes:
+      - name: database
+        hostPath:
+          path: /var/lib/mysql/data
+          type: DirectoryOrCreate
+        #  persistentVolumeClaim:
+        #     claimName: database

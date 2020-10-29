@@ -103,4 +103,5 @@ spec:
 
   # https://kubernetes.io/docs/getting-started-guides/scratch/#cloud-providers
   # https://kubernetes.io/docs/concepts/services-networking/service/#type-loadbalancer
-  type: LoadBalancer
+  #type: LoadBalancer
+  type: NodePort
